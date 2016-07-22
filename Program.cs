@@ -51,57 +51,67 @@ namespace MaxStream
 
 	class MainClass
 	{
+		public static void search (Network[] Gf, int s, int t, out int[] parent, out int[] dist)
+		{
+			dist = new int[Gf.Length];
+			parent = new int[Gf.Length];
+			bool[] used = new bool[Gf.Length];
+
+			for (int i = 0; i < dist.Length; i++) {
+				dist [i] = Int16.MaxValue;
+				used [i] = false;
+			}
+			dist [s] = 0;
+			used [s] = true;
+
+			Queue<Network> queue = new Queue<Network> ();
+
+			queue.Enqueue (Gf [s]);
+
+			while (queue.Count > 0) {
+				Network entry = queue.Dequeue ();
+				foreach (Edge e in entry.edges) {
+					used [e.u] = true;
+					if (e.c == 0)
+						continue;
+					if ((dist [e.v] > dist [e.u] + 1) && !used [e.v]) {
+						parent [e.v] = e.u;
+						dist [e.v] = dist [e.u] + 1;
+						if (e.v == t)
+							return;
+						queue.Enqueue (Gf [e.v]);
+					}
+				}
+			}
+
+		}
+
 		public static int MaxFlow (Network[] G, int s, int t)
 		{
 			int maxFlow = 0;
 			int minDelta = Int16.MaxValue;
 
-			int[] dist = new int[G.Length];
-			int[] parent = new int[G.Length];
-			bool[] used = new bool[G.Length];
+			int[] dist;
+			int[] parent;
 
+			Network[] Gf = new Network [G.Length];
 
+			for (int i = 0; i < G.Length; i++)
+				Gf [i] = new Network ();
+
+			for (int i = 0; i < G.Length; i++) {
+				if (G [i].Count > 0) {
+					foreach (Edge n in G[i].edges) {
+						Gf [i].Add (new Edge (i, n.v, n.c - n.f, 0));
+					}
+				}
+			}
 
 			while (minDelta > 0) {
+				
 				minDelta = Int16.MaxValue;
-				Network[] Gf = new Network [G.Length];
-				for (int i = 0; i < G.Length; i++)
-					Gf [i] = new Network ();
-				for (int i = 0; i < G.Length; i++) {
-					if (G [i].Count > 0) {
-						foreach (Edge n in G[i].edges) {
-							if (n.f < n.c)
-								Gf [i].Add (new Edge (i, n.v, n.c - n.f, 0));
-							if (n.f > 0) {
-								Gf [n.v].Add (new Edge (n.v, i, n.f, 0));
-							}
 
-						}
-					}
-				}
-					
-				for (int i = 0; i < dist.Length; i++) {
-					dist [i] = Int16.MaxValue;
-					used [i] = false;
-				}
-				dist [s] = 0;
-				used [s] = true;
-
-				Queue<Network> queue = new Queue<Network> ();
-
-				queue.Enqueue (Gf [s]);
-
-				while (queue.Count > 0) {
-					Network entry = queue.Dequeue ();
-					foreach (Edge e in entry.edges) {
-						used [e.u] = true;
-						if ((dist [e.v] > dist [e.u] + 1) && !used [e.v]) {
-							parent [e.v] = e.u;
-							dist [e.v] = dist [e.u] + 1;
-							queue.Enqueue (Gf [e.v]);
-						}
-					}
-				}
+				search (Gf, s, t, out parent, out dist);
 
 				if (dist [t] == Int16.MaxValue)
 					return maxFlow;
@@ -123,12 +133,14 @@ namespace MaxStream
 						if (e.v == pre)
 							e.f += minDelta;
 					}
+					foreach (Edge e in Gf[V].edges) {
+						if (e.v == pre)
+							e.c -= minDelta;
+					}
 					pre = V;
 				}
 
 				maxFlow += minDelta;
-
-				Console.WriteLine ("|");
 			}
 
 			return maxFlow;
@@ -159,7 +171,7 @@ namespace MaxStream
 
 			int m = MaxFlow (n, 0, 3);
 
-			Console.WriteLine ("Hello World!" + m);
+			Console.WriteLine (m);
 		}
 	}
 }
