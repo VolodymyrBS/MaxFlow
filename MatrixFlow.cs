@@ -41,7 +41,7 @@ namespace MaxStream
 
 			for (int v = p [u]; v < N; v++) {
 				if (d [v] == d [u] + 1) {
-					delta = dfs (G, v, 0, t, Math.Min (minC, G [u, v]), p, d);
+					delta = dfs (G, v, t, N, Math.Min (minC, G [u, v]), p, d);
 					if (delta != 0) {
 						G [u, v] -= delta;
 						G [v, u] += delta;
@@ -63,10 +63,10 @@ namespace MaxStream
 
 			long maxFlow = 0, flow = 0;
 
-			for (int i = 0; i < N; i++)
-				p [i] = 0;
-
 			while (bfs(G, N, s, t, out dist)) {
+				for (int i = 0; i < N; i++)
+					p [i] = 0;
+				
 				flow = dfs (G, s, t, N, Int64.MaxValue-1, p, dist);
 				while (flow != 0) {
 					maxFlow += flow;
