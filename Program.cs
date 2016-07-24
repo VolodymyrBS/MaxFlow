@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MaxStream
 {
-	class Edge
+	/*class Edge
 	{
 		public int c;
 		public int f;
@@ -173,5 +173,5 @@ namespace MaxStream
 
 			Console.WriteLine (m);
 		}
-	}
+	}*/
 }
